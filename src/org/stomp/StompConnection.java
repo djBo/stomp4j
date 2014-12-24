@@ -39,7 +39,7 @@ public class StompConnection extends URLConnection implements Stomp {
 
     private Boolean mConnected = false;
 
-    private Integer mLastSubscriberId = 0;
+    private Integer mLastSubscriptionId = 0;
     private final Map<String, Integer> mSubscriptionIds = new LinkedHashMap<String, Integer>();
     private final Map<Integer, String> mIdSubscriptions = new LinkedHashMap<Integer, String>();
     private final Map<String, List<StompListener>> mSubscriptions = new LinkedHashMap<String, List<StompListener>>();
@@ -224,7 +224,7 @@ public class StompConnection extends URLConnection implements Stomp {
     }
 
     private Integer getUniqueSubscriberId() {
-        return ++mLastSubscriberId;
+        return ++mLastSubscriptionId;
     }
 
     private void sendAbort() throws IOException {
@@ -367,7 +367,7 @@ public class StompConnection extends URLConnection implements Stomp {
     	}
     }
 
-    protected void handleServerMessage(StompFrame frame) {}
+    protected void handleServerMessage(StompFrame frame) throws IOException {}
 
     private void onException(Exception e) {
         if (mListener == null) {
@@ -398,6 +398,12 @@ public class StompConnection extends URLConnection implements Stomp {
     synchronized private void writeFrame(StompFrame frame) throws IOException {
         preWrite(frame);
         try {
+            // StompFrame's reader.ReadLine is blocking for the duration of mSocket.getReadTimeout() which defaults to 0.
+            // When implementing heart-beats, we have to modify the read timeout and throw exceptions when the
+            // heart-beat timeout has been reached.
+            // Worst of all, if properly implemented, each explicit read statement should be equipped with additional
+            // heart-beat detection code. As we are using a simple BufferedReader, access to each individual read statement
+        	// is virtually impossible, unless we roll our own readLine method using read(byte).
             StompFrame.writeFrame(frame, getOutput());
         } finally {
             postWrite();

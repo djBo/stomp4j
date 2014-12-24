@@ -8,11 +8,28 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.net.ProtocolException;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- *
+ * This class is the core of Stomp communication.
+ * 
+ * <p>The static class methods {@code readFrame} and {@code writeFrame} provide the core 
+ * of the Stomp communication protocol.
+ * 
+ * <a name="label_spec"><h3>Stomp Specification 1.1</h3></a>
+ * The {@code readFrame} method provides a minimal effort implementation to access frames
+ * from an {@link InputStream} using {@link BufferedReader#readLine()}. Validation is performed
+ * on reading commands. Headers are parsed using {@link String#split(String regex)}, require a
+ * colon, and allows colons in header values (as ActiveMQ actually does with it's session-id header).
+ * 
+ * <p>The {@code writeFrame} method throws a {@link ProtocolException} for invalid frame commands.
+ * The remainder of the frame is not validated for illegal content (headers and payload) and is
+ * simply written to the {@link OutputStream} using a {@link BufferedWriter} as-is.
+ * 
+ * 
  * @author Rory Slegtenhorst <rory.slegtenhorst@gmail.com>
  *
  */
@@ -37,7 +54,8 @@ public class StompFrame implements Stomp {
     }
 
     public void addHeader(String name, String value) {
-        mHeaders.put(name, value);
+    	if (!mHeaders.containsKey(name))
+    		mHeaders.put(name, value);
     }
 
     public String getCommand() {
@@ -56,6 +74,14 @@ public class StompFrame implements Stomp {
         Map<String, String> headers = new LinkedHashMap<String, String>();
         headers.putAll(mHeaders);
         return headers;
+    }
+
+    private static boolean isClientCommand(String command) {
+    	return Arrays.asList(COMMANDS_CLIENT).contains(command);
+    }
+
+    private static boolean isServerCommand(String command) {
+    	return Arrays.asList(COMMANDS_SERVER).contains(command);
     }
 
     @Override
@@ -79,24 +105,20 @@ public class StompFrame implements Stomp {
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(input));
 
-            // reader.ReadLine is blocking for the duration of mSocket.getReadTimeout() which defaults to 0.
-            // When implementing heart-beats, we have to modify the read timeout and throw exceptions when the
-            // heart-beat timeout has been reached.
-            // Worst of all, if properly implemented, each explicit read statement should be equipped with additional
-            // heart-beat detection code.
-
             String command = "";
             for (String line = reader.readLine(); line != null; line = reader.readLine()) {
                 if ("".equals(line)) {
-                    // skip any existing empty lines in the buffer
-
                     //TODO:Update heart-beat mechanism here
-
                     if (DEBUG) System.out.println("StompConnection.readFrame Skip empty line");
                 } else {
                     if (DEBUG) System.out.println("StompConnection.readFrame Command: " + line);
 
-                    if (CONNECTED.equals(line) || MESSAGE.equals(line) || RECEIPT.equals(line) || ERROR.equals(line)) {
+                    if (isServerCommand(line)) {
+                        command = line;
+                        break;
+                    } else
+                    if (isClientCommand(line)) {
+                    	if (DEBUG && VERBOSE) System.out.println("StompConnection.readFrame WARNING: READ CLIENT COMMAND");
                         command = line;
                         break;
                     } else {
@@ -157,6 +179,8 @@ public class StompFrame implements Stomp {
 
     public static void writeFrame(StompFrame frame, OutputStream output) throws IOException {
         if (DEBUG) System.out.println("StompConnection.writeFrame +");
+        if ( ! ( isClientCommand(frame.getCommand()) || isServerCommand(frame.getCommand()) || HEARTBEAT.equals(frame.getCommand()) ) )
+        	throw new ProtocolException(MSG_INVALID_COMMAND);
         try {
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(output));
             try {
@@ -183,7 +207,7 @@ public class StompFrame implements Stomp {
                             writer.write(0);
                     }
                 } else writer.write(0);
-                if (DEBUG && VERBOSE) System.out.println("StompConnection.writeFrame LF");
+                if (DEBUG && VERBOSE) System.out.println("StompConnection.writeFrame extra LF");
                 writer.write("\n");
             } finally {
                 if (DEBUG && VERBOSE) System.out.println("StompConnection.writeFrame Flush");
@@ -193,15 +217,5 @@ public class StompFrame implements Stomp {
             if (DEBUG) System.out.println("StompConnection.writeFrame -");
         }
     }
-
-
-    /*
-    private void writeObject(java.io.ObjectOutputStream out)
-            throws IOException
-    private void readObject(java.io.ObjectInputStream in)
-            throws IOException, ClassNotFoundException;
-    private void readObjectNoData()
-            throws ObjectStreamException;
-    */
 
 }
