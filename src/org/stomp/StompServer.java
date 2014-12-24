@@ -1,7 +1,6 @@
 package org.stomp;
 
 import java.io.IOException;
-import java.io.IOStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 
