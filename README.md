@@ -1,4 +1,4 @@
-# Stomp-java
+# stomp4j
 
 STOMP is the **S**imple (or Streaming) **T**ext **O**rientated **M**essaging **P**rotocol.
 See [here][stomp]  for more details.
