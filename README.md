@@ -96,7 +96,7 @@ send received messages based on subscriber id (and not destination).
  - Implement heart-beats (*)
    - Currently, only client->server heart-beats are supported
  - Add SSL support
- - Allow to send a message StompConnection using a loopback to aid in debugging/testing
+ - Allow to send a message StompConnection using a loopback to aid in debugging/testing (*)
    - This allows the client to send messages to itself without a server present
  - Send DISCONNECT frame (this probably wont happen)
  - Add Debugging statements
