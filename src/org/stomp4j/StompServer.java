@@ -116,7 +116,7 @@ public class StompServer extends StompConnection {
         if (SUBSCRIBE.equals(cmd) || UNSUBSCRIBE.equals(cmd) || BEGIN.equals(cmd) || COMMIT.equals(cmd) || ABORT.equals(cmd) || DISCONNECT.equals(cmd)) {
             // For now, do nothing
         }
-        if (result != null) StompFrame.writeFrame(result, getOutput());
+        if (result != null) StompIO.writeFrame(result, getOutput());
 
     }
     

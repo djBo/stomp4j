@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
  * @author Rory Slegtenhorst <rory.slegtenhorst@gmail.com>
  *
  */
-public class StompConnection extends URLConnection implements Stomp {
+public class StompConnection extends URLConnection implements StompIO.Listener {
 
     private final SocketAddress mSocketAddress;
     private final Socket mSocket;
@@ -223,10 +223,16 @@ public class StompConnection extends URLConnection implements Stomp {
         return mConnected;
     }
 
+    /**
+     * Simple utility function that increases the last subscription id;
+     * 
+     * @return last subscription id
+     */
     private Integer getUniqueSubscriberId() {
         return ++mLastSubscriptionId;
     }
 
+    //--------------------------------------------------------------------------------
     private void sendAbort() throws IOException {
         StompFrame frame = new StompFrame(ABORT);
         frame.addHeader(HEADER_TRANSACTION, mTransaction);
@@ -286,7 +292,7 @@ public class StompConnection extends URLConnection implements Stomp {
     }
 
     private void sendMessage(StompMessage message) throws IOException {
-        StompFrame frame = StompMessage.toStompFrame(message);
+        StompFrame frame = StompIO.messageToFrame(message);
 
         if (mTransaction != null)
             frame.addHeader(HEADER_TRANSACTION, mTransaction);
@@ -316,7 +322,9 @@ public class StompConnection extends URLConnection implements Stomp {
         frame.addHeader(HEADER_ID, id.toString());
         writeFrame(frame);
     }
-
+    //--------------------------------------------------------------------------------
+    
+    
     /**
      * Handles the incoming STOMP frames from the server
      * and sends appropriate ACK and NACK responses.
@@ -338,7 +346,7 @@ public class StompConnection extends URLConnection implements Stomp {
                         try {
                             // AND isAcknowledged with the result and store it. It will never flip
                             // back to true...
-                            isAcknowledged &= listener.onMessage(StompMessage.fromStompFrame(frame));
+                            isAcknowledged &= listener.onMessage(StompIO.frameToMessage(frame));
                         } catch (Exception e) {
                             // Ignore any listener exceptions
                         }
@@ -355,14 +363,13 @@ public class StompConnection extends URLConnection implements Stomp {
                 mListener.onReceipt(frame.getHeaders().get(HEADER_RECEIPT));
     	} else if (ERROR.equals(cmd)) {
             if (mListener != null)
-                mListener.onError(StompMessage.fromStompFrame(frame));
+                mListener.onError(StompIO.frameToMessage(frame));
     	} else {
-
             if (mSocket == null) {
                 handleServerMessage(frame);
             } else {
                 if (mListener != null)
-                    mListener.onUnknownCommand(StompMessage.fromStompFrame(frame));
+                    mListener.onUnknownCommand(StompIO.frameToMessage(frame));
             }
     	}
     }
@@ -404,7 +411,7 @@ public class StompConnection extends URLConnection implements Stomp {
             // Worst of all, if properly implemented, each explicit read statement should be equipped with additional
             // heart-beat detection code. As we are using a simple BufferedReader, access to each individual read statement
         	// is virtually impossible, unless we roll our own readLine method using read(byte).
-            StompFrame.writeFrame(frame, getOutput());
+            StompIO.writeFrame(frame, getOutput());
         } finally {
             postWrite();
         }
@@ -443,7 +450,7 @@ public class StompConnection extends URLConnection implements Stomp {
         public void run() {
             try {
                 while (true) {
-                    StompFrame frame = StompFrame.readFrame(mInput);
+                    StompFrame frame = StompIO.readFrame(mInput);
                     if ("".equals(frame.getCommand())) throw new SocketException(MSG_SOCKET_CLOSED);
                     mConnection.handleStompFrame(frame);
                 }

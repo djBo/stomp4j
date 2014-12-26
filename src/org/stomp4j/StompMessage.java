@@ -130,30 +130,6 @@ public class StompMessage implements Stomp {
     	return this;
     }
     
-    static StompMessage fromStompFrame(StompFrame frame) {
-        StompMessage message = new StompMessage(
-                ERROR.equals(frame.getCommand()) ? null : frame.getHeaders().get(HEADER_DESTINATION),
-                frame.getPayload(),
-                frame.getContentType(),
-                frame.getContentType() != null);
-        for (Map.Entry<String, String> header : frame.getHeaders().entrySet())
-            message.addHeader(header.getKey(), header.getValue());
-        return message;
-    }
-
-    static StompFrame toStompFrame(StompMessage message) {
-        StompFrame frame = new StompFrame(SEND, message.getPayload());
-        frame.addHeader(HEADER_DESTINATION, message.getDestination());
-        if (message.isPersistent())
-        	frame.addHeader(HEADER_PERSISTENT, VALUE_PERSISTENT);
-        if (message.getContentType() != null)
-            frame.addHeader(HEADER_CONTENT_TYPE, message.getContentType());
-        frame.addHeader(HEADER_CONTENT_LENGTH, "" + message.getContentLength());
-        for (Map.Entry<String, String> header : message.getHeaders().entrySet())
-            frame.addHeader(header.getKey(), header.getValue());
-        return frame;
-    }
-
     @Override
     public String toString() {
 
