@@ -1,4 +1,4 @@
-package org.stomp;
+package org.stomp4j;
 
 /**
  * 

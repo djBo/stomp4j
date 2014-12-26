@@ -1,4 +1,4 @@
-package org.stomp;
+package org.stomp4j;
 
 import java.net.URL;
 import java.net.URLStreamHandler;

@@ -1,4 +1,4 @@
-package org.stomp;
+package org.stomp4j;
 
 import java.nio.charset.Charset;
 import java.util.LinkedHashMap;
