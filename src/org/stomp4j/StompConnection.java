@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
  * @author Rory Slegtenhorst <rory.slegtenhorst@gmail.com>
  *
  */
-public class StompConnection extends URLConnection implements StompIO.Listener {
+public class StompConnection extends URLConnection implements Stomp {
 
     private final SocketAddress mSocketAddress;
     private final Socket mSocket;
@@ -47,10 +47,11 @@ public class StompConnection extends URLConnection implements StompIO.Listener {
     @SuppressWarnings("rawtypes")
     private static Future mFuture;
     private static final ScheduledExecutorService mExecutor = Executors.newSingleThreadScheduledExecutor(); // Heart-beat writer
+    private static final FrameListener mFrameListener = new FrameListener();
 
     private StompListenerThread mListenerThread = null;
     private Listener mListener = null;
-
+    
     protected StompConnection() {
         super(null);
         mSocketAddress = null;
@@ -411,10 +412,30 @@ public class StompConnection extends URLConnection implements StompIO.Listener {
             // Worst of all, if properly implemented, each explicit read statement should be equipped with additional
             // heart-beat detection code. As we are using a simple BufferedReader, access to each individual read statement
         	// is virtually impossible, unless we roll our own readLine method using read(byte).
-            StompIO.writeFrame(frame, getOutput());
+            StompIO.writeFrame(frame, getOutput(), mFrameListener);
         } finally {
             postWrite();
         }
+    }
+
+    private static class FrameListener implements StompIO.Listener {
+    	@Override
+    	public void onReadBegin(){}
+
+    	@Override
+    	public void onReadEmpty(){}
+
+    	@Override
+    	public void onReadEnd(final boolean finalized){}
+
+    	@Override
+    	public void onWriteBegin(){}
+
+    	@Override
+    	public void onWriteEmpty(){}
+
+    	@Override
+    	public void onWriteEnd(){}
     }
 
     private static class StompHeartBeatWriter implements Runnable {
@@ -450,7 +471,7 @@ public class StompConnection extends URLConnection implements StompIO.Listener {
         public void run() {
             try {
                 while (true) {
-                    StompFrame frame = StompIO.readFrame(mInput);
+                    StompFrame frame = StompIO.readFrame(mInput, mFrameListener);
                     if ("".equals(frame.getCommand())) throw new SocketException(MSG_SOCKET_CLOSED);
                     mConnection.handleStompFrame(frame);
                 }
