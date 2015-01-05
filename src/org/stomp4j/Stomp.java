@@ -5,7 +5,6 @@ package org.stomp4j;
  * and non-translatable strings to use in the protocol.
  * 
  * @author Rory Slegtenhorst <rory.slegtenhorst@gmail.com>
- * 
  */
 interface Stomp {
 

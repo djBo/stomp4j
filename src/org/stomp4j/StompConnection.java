@@ -21,9 +21,11 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- *
+ * StompConnection Class
+ * 
+ * <p>The center of the Stomp API. Allows all Stomp related calls (subscribe/unsubscribe/send etc.).
+ * 
  * @author Rory Slegtenhorst <rory.slegtenhorst@gmail.com>
- *
  */
 public class StompConnection extends URLConnection implements Stomp {
 
@@ -66,12 +68,21 @@ public class StompConnection extends URLConnection implements Stomp {
         mSocket = new Socket();
     }
 
+    /**
+     * Abort a Stomp transaction.
+     * @throws IOException
+     */
     public void abort() throws IOException {
         if (mSocket != null && !mSocket.isConnected()) throw new ConnectException(MSG_NOT_CONNECTED);
         if (mTransaction != null)
             sendAbort();
     }
 
+    /**
+     * Begin a Stomp transaction.
+     * @param transaction
+     * @throws IOException
+     */
     public void begin(String transaction) throws IOException {
         if (mSocket != null && !mSocket.isConnected()) throw new ConnectException(MSG_NOT_CONNECTED);
         if (mTransaction == null && transaction != null) {
@@ -79,12 +90,19 @@ public class StompConnection extends URLConnection implements Stomp {
         }
     }
 
+    /**
+     * Commit a Stomp transaction.
+     * @throws IOException
+     */
     public void commit() throws IOException {
         if (mSocket != null && !mSocket.isConnected()) throw new ConnectException(MSG_NOT_CONNECTED);
         if (mTransaction != null)
             sendCommit();
     }
 
+    /**
+     * Connect to the Stomp server, and send the {@code CONNECT} frame.
+     */
     @Override
     public void connect() throws IOException {
         if (mSocket != null && mSocket.isConnected()) throw new ConnectException(MSG_ALREADY_CONNECTED);
@@ -116,6 +134,10 @@ public class StompConnection extends URLConnection implements Stomp {
         sendConnect();
     }
 
+    /**
+     * Disconnect from the Stomp server. No {@code DISCONNECT} frame is sent.
+     * @throws IOException
+     */
     public void disconnect() throws IOException {
         if (mSocket != null && !mSocket.isConnected()) throw new ConnectException(MSG_NOT_CONNECTED);
         if (mListenerThread != null) {
@@ -125,6 +147,11 @@ public class StompConnection extends URLConnection implements Stomp {
         if (mSocket != null) mSocket.close();
     }
 
+    /**
+     * Send a message to the Stomp server.
+     * @param message {@link StompMessage} to be sent
+     * @throws IOException
+     */
     public void send(StompMessage message) throws IOException {
         if (mSocket != null && !mSocket.isConnected()) throw new ConnectException(MSG_NOT_CONNECTED);
         if (message != null) {
@@ -132,12 +159,24 @@ public class StompConnection extends URLConnection implements Stomp {
         }
     }
 
+    /**
+     * Set credentials for the Stomp server. Needs to be set before calling {@link #connect}.
+     * @param username
+     * @param password
+     * @throws IOException
+     */
     public void setCredentials(String username, String password) throws IOException {
         if (mSocket != null && mSocket.isConnected()) throw new ConnectException(MSG_ALREADY_CONNECTED);
         mUsername = username;
         mPassword = password;
     }
 
+    /**
+     * Set the heartbeat timer values in milliseconds. Needs to be set before calling {@link #connect}.
+     * @param recvDelay Delay for receiving heartbeats
+     * @param sendDelay Delay for sending heartbeats
+     * @throws IOException
+     */
     public void setHeartBeat(int recvDelay, int sendDelay) throws IOException {
     	if (mSocket != null && mSocket.isConnected()) throw new ConnectException(MSG_ALREADY_CONNECTED);
     	if (recvDelay > 0) mHeartBeatRecvDelay = recvDelay;
@@ -206,11 +245,21 @@ public class StompConnection extends URLConnection implements Stomp {
         }
     }
 
+    /**
+     * Used internally by {@link StompServer}.
+     * @return
+     * @throws IOException
+     */
     protected InputStream getInput() throws IOException {
         if (mSocket != null) return mSocket.getInputStream();
         return null;
     }
 
+    /**
+     * Used internally by {@link StompServer}.
+     * @return
+     * @throws IOException
+     */
     protected OutputStream getOutput() throws IOException {
         if (mSocket != null) return mSocket.getOutputStream();
         return null;
@@ -218,7 +267,6 @@ public class StompConnection extends URLConnection implements Stomp {
 
     /**
      * Returns if the connection is up and running. This value is set to {@code true} once the CONNECTED frame has been received.
-     * @return
      */
     public Boolean isConnected() {
         return mConnected;
@@ -375,6 +423,11 @@ public class StompConnection extends URLConnection implements Stomp {
     	}
     }
 
+    /**
+     * Used internally by {@link StompServer}.
+     * @param frame
+     * @throws IOException
+     */
     protected void handleServerMessage(StompFrame frame) throws IOException {}
 
     private void onException(Exception e) {
@@ -489,6 +542,13 @@ public class StompConnection extends URLConnection implements Stomp {
         }
     }
 
+    /**
+     * StompConnection.Listener Interface
+     * 
+     * <p>Implement this to be notified for low-level networking states.
+     * @author Rory Slegtenhorst
+     *
+     */
     public interface Listener {
         public void onConnecting();
         public void onConnected();

@@ -7,7 +7,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Loopback Stomp Server implementation.
+ * StompServer Class
+ * 
+ * <p>Loopback Stomp Server implementation.
  * 
  * <p>This class implements a very limited loopback {@link StompConnection} that acts as it's own server.
  * There is no support for message storage, multiple subscribers to the same destination, sessions or transactions.
@@ -31,7 +33,6 @@ import java.util.Map;
  * 
  * 
  * @author Rory Slegtenhorst <rory.slegtenhorst@gmail.com>
- *
  */
 public class StompServer extends StompConnection {
 

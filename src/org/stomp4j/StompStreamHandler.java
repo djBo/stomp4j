@@ -6,9 +6,11 @@ import java.net.URLConnection;
 import java.net.URLStreamHandler;
 
 /**
+ * StompStreamHandler Class
+ * 
+ * <p>Used in conjunction with {@link StompStreamHandlerFactory}.
  * 
  * @author Rory Slegtenhorst <rory.slegtenhorst@gmail.com>
- *
  */
 class StompStreamHandler extends URLStreamHandler implements Stomp {
 
@@ -21,7 +23,7 @@ class StompStreamHandler extends URLStreamHandler implements Stomp {
 
 	@Override
 	protected int getDefaultPort() {
-		return 61613;
+		return DEFAULT_PORT;
 	}
 
 }

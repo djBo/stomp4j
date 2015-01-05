@@ -24,6 +24,7 @@ import java.util.Arrays;
  * copy during the operations. Also note that there is no thread-safe way retrieve the actual
  * size of the array.
  *
+ * @author Rory Slegtenhorst <rory.slegtenhorst@gmail.com>
  */
 class IOStream {
 

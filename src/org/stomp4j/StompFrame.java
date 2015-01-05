@@ -2,19 +2,16 @@ package org.stomp4j;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.net.ProtocolException;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * This class is the core of Stomp communication.
+ * StompFrame Class
+ * 
+ * <p>This class is the core of Stomp communication.
  * 
  * <p>The static class methods {@code readFrame} and {@code writeFrame} provide the core 
  * of the Stomp communication protocol.
@@ -29,9 +26,7 @@ import java.util.Map;
  * The remainder of the frame is not validated for illegal content (headers and payload) and is
  * simply written to the {@link OutputStream} using a {@link BufferedWriter} as-is.
  * 
- * 
  * @author Rory Slegtenhorst <rory.slegtenhorst@gmail.com>
- *
  */
 class StompFrame implements Stomp {
 

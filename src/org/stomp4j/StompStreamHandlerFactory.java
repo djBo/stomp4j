@@ -7,9 +7,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
+ * StompStreamHandlerFactory Class
+ * 
+ * <p>Responsible for adding the {@link StompStreamHandler} to the system.
  * 
  * @author Rory Slegtenhorst <rory.slegtenhorst@gmail.com>
- *
  */
 public class StompStreamHandlerFactory implements URLStreamHandlerFactory, Stomp {
 

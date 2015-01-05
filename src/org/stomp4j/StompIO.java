@@ -14,14 +14,15 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * This class contains the {@code readFrame} and {@code writeFrame} methods using {@link InputStream} or
+ * StompIO Class
+ * 
+ * <p>This class contains the {@code readFrame} and {@code writeFrame} methods using {@link InputStream} or
  * {@link OutputStream} respectively. Also contained, is a {@link Listener} interface for more fine-tuned control during the read and write methods.
  * 
- * Last but not least are the frameToMessage and messageToFrame conversion routines that serve as the
+ * <p>Last but not least are the frameToMessage and messageToFrame conversion routines that serve as the
  * glue between the api and the code using it.
  * 
  * @author Rory Slegtenhorst <rory.slegtenhorst@gmail.com>
- *
  */
 class StompIO implements Stomp {
 

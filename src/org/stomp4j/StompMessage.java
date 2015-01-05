@@ -5,9 +5,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
+ * StompMessage Class
+ * 
+ * <p>API wrapper for {@link StompFrame}.
  * 
  * @author Rory Slegtenhorst <rory.slegtenhorst@gmail.com>
- *
  */
 public class StompMessage implements Stomp {
 
