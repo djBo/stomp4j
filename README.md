@@ -9,7 +9,7 @@ This implementation for Java, uses the [URLConnnection] class mechanism for crea
 
 Connections are made using the following url:
 
-    stomp://[<username>:<password>]@hostname[:port]/
+    stomp://[<username>:<password>@]hostname[:port]/
 
 Example code to register the stomp protocol handler, required once at application launch:
 
