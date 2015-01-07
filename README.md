@@ -17,7 +17,7 @@ Example code to register the stomp protocol handler, required once at applicatio
 
 Example code for making a connection:
 
-    URL url = new URL("http://myhost.org:61613/");
+    URL url = new URL("stomp://myhost.org:61613/");
     StompConnection con = (StompConnection) url.openConnection();
     con.setConnectTimeout(1000);
     con.setEventListener(new StompConnection.Listener() {...});
@@ -95,7 +95,7 @@ send received messages based on subscriber id (and not destination).
  - Add Code Comments
  - Implement heart-beats (*)
    - Currently, only client->server heart-beats are supported
- - Add SSL support
+ - Add SSL support (*)
  - Allow to send a message StompConnection using a loopback to aid in debugging/testing (*)
    - This allows the client to send messages to itself without a server present
  - Send DISCONNECT frame (this probably wont happen)
@@ -105,7 +105,7 @@ send received messages based on subscriber id (and not destination).
    - This would move the actual frame reading/writing back to StompFrame
    - This will make implementing heart-beats etc. a lot harder
 
-**\*** Work-in-progress
+**(*)** Work-in-progress
 
 License
 ----
